@@ -1,0 +1,193 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{xcolor,listings,hyperref,enumitem}
+\definecolor{navy}{HTML}{17365D}
+\definecolor{pale}{HTML}{F3F6FA}
+\lstdefinestyle{code}{basicstyle=\ttfamily\small,breaklines=true,frame=single,backgroundcolor=\color{pale},rulecolor=\color{gray!35},numbers=left,numberstyle=\tiny\color{gray},numbersep=8pt,showstringspaces=false,tabsize=4,columns=fullflexible,keepspaces=true}
+\lstset{style=code}
+\hypersetup{colorlinks=true,urlcolor=navy}
+\title{\textcolor{navy}{Task 1: Review of Programming Basics}\\\large Python and C\# Console Applications}
+\author{Programming Exercises -- Complete Solutions}
+\date{November 2026}
+\begin{document}\maketitle
+\section*{Overview}
+This report presents working console-based solutions for three exercises in both Python and C\#. Each solution reads input, computes a result, and prints it to the console. Input validation prevents invalid operations and grades.
+\section{Simple Two-Number Calculator}
+\textbf{Goal:} Read two numbers and an operator (+, -, *, /), then display the result. Division by zero is handled explicitly.
+\subsection*{Python}
+\begin{lstlisting}[language=Python]
+try:
+    first = float(input("First number: "))
+    second = float(input("Second number: "))
+    operator = input("Operation (+, -, *, /): ").strip()
+
+    if operator == "+":
+        result = first + second
+    elif operator == "-":
+        result = first - second
+    elif operator == "*":
+        result = first * second
+    elif operator == "/":
+        if second == 0:
+            raise ZeroDivisionError("Cannot divide by zero.")
+        result = first / second
+    else:
+        raise ValueError("Unknown operation.")
+
+    print(f"Result: {result:g}")
+except (ValueError, ZeroDivisionError) as error:
+    print(f"Error: {error}")
+\end{lstlisting}
+\subsection*{C\#}
+\begin{lstlisting}
+using System;
+using System.Globalization;
+
+Console.Write("First number: ");
+bool firstOk = double.TryParse(Console.ReadLine(),
+    NumberStyles.Float, CultureInfo.InvariantCulture, out double a);
+Console.Write("Second number: ");
+bool secondOk = double.TryParse(Console.ReadLine(),
+    NumberStyles.Float, CultureInfo.InvariantCulture, out double b);
+Console.Write("Operation (+, -, *, /): ");
+string op = Console.ReadLine()?.Trim() ?? "";
+
+if (!firstOk || !secondOk)
+{
+    Console.WriteLine("Error: Invalid number.");
+}
+else if (op == "/" && b == 0)
+{
+    Console.WriteLine("Error: Cannot divide by zero.");
+}
+else
+{
+    double result;
+    if (op == "+") result = a + b;
+    else if (op == "-") result = a - b;
+    else if (op == "*") result = a * b;
+    else if (op == "/") result = a / b;
+    else
+    {
+        Console.WriteLine("Error: Unknown operation.");
+        return;
+    }
+    Console.WriteLine($"Result: {result:G}");
+}
+\end{lstlisting}
+\textbf{Example:} Inputs: \texttt{10}, \texttt{20}, \texttt{+}. Output: \texttt{Result: 30}.
+\section{Temperature Converter}
+\textbf{Goal:} Select C to convert Celsius to Fahrenheit, or F to convert Fahrenheit to Celsius. The formulas are
+\[F = 1.8C + 32, \qquad C = \frac{F-32}{1.8}.\]
+\subsection*{Python}
+\begin{lstlisting}[language=Python]
+try:
+    direction = input("Convert from C or F? ").strip().upper()
+    if direction not in ("C", "F"):
+        raise ValueError("Choose C or F.")
+    temperature = float(input("Temperature: "))
+
+    if direction == "C":
+        converted = temperature * 1.8 + 32
+        print(f"{temperature:g} C = {converted:g} F")
+    else:
+        converted = (temperature - 32) / 1.8
+        print(f"{temperature:g} F = {converted:g} C")
+except ValueError as error:
+    print(f"Error: {error}")
+\end{lstlisting}
+\subsection*{C\#}
+\begin{lstlisting}
+using System;
+using System.Globalization;
+
+Console.Write("Convert from C or F? ");
+string direction = (Console.ReadLine() ?? "").Trim().ToUpper();
+if (direction != "C" && direction != "F")
+{
+    Console.WriteLine("Error: Choose C or F.");
+    return;
+}
+Console.Write("Temperature: ");
+if (!double.TryParse(Console.ReadLine(), NumberStyles.Float,
+    CultureInfo.InvariantCulture, out double temperature))
+{
+    Console.WriteLine("Error: Invalid temperature.");
+    return;
+}
+if (direction == "C")
+{
+    double fahrenheit = temperature * 1.8 + 32;
+    Console.WriteLine($"{temperature:G} C = {fahrenheit:G} F");
+}
+else
+{
+    double celsius = (temperature - 32) / 1.8;
+    Console.WriteLine($"{temperature:G} F = {celsius:G} C");
+}
+\end{lstlisting}
+\textbf{Example:} Inputs: \texttt{C}, \texttt{0}. Output: \texttt{0 C = 32 F}.
+\section{Student Grade Point Average}
+\textbf{Goal:} Read a positive number of grades on the 1--6 scale, calculate their arithmetic mean, and print whether the student passed (average at least 3.0).
+\subsection*{Python}
+\begin{lstlisting}[language=Python]
+try:
+    count = int(input("Number of grades: "))
+    if count <= 0:
+        raise ValueError("Enter at least one grade.")
+
+    total = 0.0
+    for index in range(count):
+        grade = float(input(f"Grade {index + 1} (1-6): "))
+        if not 1 <= grade <= 6:
+            raise ValueError("Grades must be between 1 and 6.")
+        total += grade
+
+    average = total / count
+    print(f"Average: {average:.2f}")
+    if average >= 3.0:
+        print("The student passed.")
+    else:
+        print("The student did not pass.")
+except ValueError as error:
+    print(f"Error: {error}")
+\end{lstlisting}
+\subsection*{C\#}
+\begin{lstlisting}
+using System;
+using System.Globalization;
+
+Console.Write("Number of grades: ");
+if (!int.TryParse(Console.ReadLine(), out int count) || count <= 0)
+{
+    Console.WriteLine("Error: Enter a positive number of grades.");
+    return;
+}
+double total = 0;
+for (int i = 0; i < count; i++)
+{
+    Console.Write($"Grade {i + 1} (1-6): ");
+    if (!double.TryParse(Console.ReadLine(), NumberStyles.Float,
+        CultureInfo.InvariantCulture, out double grade) ||
+        grade < 1 || grade > 6)
+    {
+        Console.WriteLine("Error: Grades must be between 1 and 6.");
+        return;
+    }
+    total += grade;
+}
+double average = total / count;
+Console.WriteLine($"Average: {average:F2}");
+if (average >= 3.0)
+    Console.WriteLine("The student passed.");
+else
+    Console.WriteLine("The student did not pass.");
+\end{lstlisting}
+\textbf{Example:} Inputs: \texttt{4}, \texttt{5}, \texttt{3}, \texttt{4}, \texttt{2}. Output: \texttt{Average: 3.50} followed by \texttt{The student passed.}
+\section*{Execution and Submission}
+Each code sample is a standalone console application. Save Python examples as \texttt{task1.py}, \texttt{task2.py}, and \texttt{task3.py}, and run with \texttt{python task1.py} (similarly for the other tasks). For C\#, create a separate console project for each task using \texttt{dotnet new console}, replace its \texttt{Program.cs} with the corresponding code, and execute \texttt{dotnet run}. C\# examples use top-level statements (C\# 9 or later). Numeric input in C\# uses a dot as decimal separator.
+
+For submission, push the source files to GitHub, preferably with separate Python and C\# directories and a README containing run instructions. Use a feature branch (for example, \texttt{feature/programming-basics}) and merge it into \texttt{main} after testing. A GitHub repository link must be created and submitted separately; this document does not represent a published repository.
+\end{document}
